@@ -20,6 +20,7 @@
 using namespace liblogger;
 
 #include <Interfaces.h>
+#include <IPInfo.h>
 #include <Monitor.h>
 #include <MonitorManager.h>
 

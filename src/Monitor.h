@@ -7,6 +7,7 @@ class Monitor : protected Thread
 	
 		void Reset();
 		void Dump();
+		void Purge();
 	
 	private:
 		void Run();
@@ -18,7 +19,7 @@ class Monitor : protected Thread
 		volatile bool m_exit;
 		
 		Mutex m_ipsmutex;
-		std::map<std::string, std::string> m_ips;
+		std::map<std::string, std::shared_ptr<IPInfo> > m_ips;
 
 };
 

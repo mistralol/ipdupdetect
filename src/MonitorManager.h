@@ -6,6 +6,7 @@ class MonitorManager
 		~MonitorManager();
 
 		void Scan();
+		void Purge();
 		
 		void Reset(const std::string ifname);
 		void Reset();

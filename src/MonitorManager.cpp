@@ -46,6 +46,15 @@ void MonitorManager::Scan()
 	}
 }
 
+void MonitorManager::Purge()
+{
+	ScopedLock lock(&m_mutex);
+	for(auto it : m_map)
+	{
+		it.second->Purge();
+	}
+}
+
 void MonitorManager::Reset(const std::string ifname)
 {
 	ScopedLock lock(&m_mutex);

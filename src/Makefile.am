@@ -7,6 +7,7 @@ ipdupdetect_LDFLAGS=$(LIBCLIENTSERVER_LIBS) $(LIBLOGGER_LIBS)
 ipdupdetect_SOURCES=main.cpp \
 			Interfaces.cpp \
 			Monitor.cpp \
-			MonitorManager.cpp
+			MonitorManager.cpp \
+			IPInfo.cpp
 
 
