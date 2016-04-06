@@ -71,13 +71,15 @@ class SigHandler : public ISignalHandler
 
 int main(int argc, char **argv)
 {
-
+	std::unique_ptr<PIDFile> PidFile;
+	std::string LocPidFile = "";
 	const char *opts = "h";
 	int longindex = 0;
 	int c = 0;
 	struct option loptions[]
 	{
 		{"help", 0, 0, 'h'},
+		{"pid", 1, 0, 'p'},
 		{0, 0, 0, 0}
 	};
 	
@@ -89,6 +91,9 @@ int main(int argc, char **argv)
 				print_help(stdout, argv[0]);
 				exit(EXIT_SUCCESS);
 				break;
+			case 'p':
+				LocPidFile = optarg;
+				break;
 			default:
 				break;
 		}
@@ -98,6 +103,17 @@ int main(int argc, char **argv)
 	if (isatty(fileno(stdout)) == 1)
 	{
 		LogManager::Add(new LogStdoutColor());
+	}
+	
+	if (LocPidFile != "")
+	{
+		PidFile.reset(new PIDFile(LocPidFile));
+		if (PidFile->Create() == false)
+		{
+			LogCritical("Cannot Create PID file '%s'", LocPidFile.c_str());
+			exit(EXIT_FAILURE);
+		}
+		LogInfo("Created PID file '%s'", LocPidFile.c_str());
 	}
 
 	SigHandler SHandler;
