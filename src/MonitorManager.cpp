@@ -3,7 +3,7 @@
 
 MonitorManager::MonitorManager()
 {
-	Scan();
+
 }
 
 MonitorManager::~MonitorManager()
@@ -40,7 +40,7 @@ void MonitorManager::Scan()
 	{
 		if (it.second == false)
 		{
-			LogDebug("Removing Intergave '%s'", it.first.c_str());
+			LogDebug("Removing Interface '%s'", it.first.c_str());
 			Remove(it.first);
 		}
 	}
