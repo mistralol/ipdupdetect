@@ -1,17 +1,5 @@
 
-#include <list>
-#include <string>
-
-#include <string.h>
-#include <sys/types.h>
-#include <ifaddrs.h>
-
-#include <liblogger.h>
-
-using namespace liblogger;
-
-
-#include <Interfaces.h>
+#include <main.h>
 
 std::list<std::string> Interfaces::List()
 {
@@ -30,8 +18,13 @@ std::list<std::string> Interfaces::List()
 		return lst;
 	while(tmp->ifa_next != NULL)
 	{
-		std::string ifname = tmp->ifa_name;
-		lst.push_back(ifname);	
+		if ( (tmp->ifa_flags & IFF_UP) &&
+		     (tmp->ifa_flags & IFF_LOOPBACK) == 0 &&
+		     (tmp->ifa_flags & IFF_NOARP) == 0)
+		{
+			std::string ifname = tmp->ifa_name;
+			lst.push_back(ifname);	
+		}
 		tmp = tmp->ifa_next;
 	}
 	freeifaddrs(iflst);

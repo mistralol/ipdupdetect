@@ -4,7 +4,9 @@
 #include <getopt.h>
 #include <unistd.h>
 
+#include <ifaddrs.h>
 #include <arpa/inet.h>
+#include <net/if.h>
 #include <net/if_arp.h>
 #include <netinet/if_ether.h>
 #include <netinet/ip.h>
