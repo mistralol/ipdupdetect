@@ -49,6 +49,7 @@ void MonitorManager::Scan()
 void MonitorManager::Purge()
 {
 	ScopedLock lock(&m_mutex);
+	LogDebug("MonitorManager::Purge()");
 	for(auto it : m_map)
 	{
 		it.second->Purge();

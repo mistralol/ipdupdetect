@@ -38,20 +38,19 @@ void Monitor::Dump()
 void Monitor::Purge()
 {
 	ScopedLock lock(&m_ipsmutex);
-	LogInfo("Interface '%s' Info dump", m_ifname.c_str());
 	std::list<std::string> lst;
 	struct timespec now, expire;
-	struct timespec timeout = {600, 0}; //10 Minutes
+	struct timespec timeout = {3600, 0}; //1 Hour
 	Time::UTCNow(&now);
-	Time::Add(&now, &timeout, &expire);
+	Time::Sub(&now, &timeout, &expire);
 	for(auto it : m_ips)
 	{
 		std::shared_ptr<IPInfo> Info(it.second);
-		if (Time::IsGreater(&Info->LastSeen, &expire))
+		if (Time::IsLess(&Info->LastSeen, &expire))
 		{
+			LogDebug("Removing IP %s has mac %s as its too old", Info->IPAddress.c_str(), Info->MACCurrent.c_str());
 			lst.push_back(Info->IPAddress);
 		}
-		LogDebug("Removeing IP %s has mac %s as its too old", Info->IPAddress.c_str(), Info->MACCurrent.c_str());
 	}
 	
 	for(auto it : lst)
@@ -214,13 +213,13 @@ void Monitor::ProcessArp(const struct ether_arp *arp)
 				else
 				{
 					std::shared_ptr<IPInfo> Info = it->second;
+					Time::UTCNow(&Info->LastSeen);
 					if (Info->MACCurrent != src_mac)
 					{
 						LogWarning("Interface %s IP Address %s Change from HW: %s to HW: %s",
 							m_ifname.c_str(), src_ip.c_str(), Info->MACCurrent.c_str(), src_mac.c_str());
 						
 						Info->MACCurrent = src_mac;
-						Time::UTCNow(&Info->LastSeen);
 					}
 				}
 			} while(0);

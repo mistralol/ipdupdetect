@@ -131,6 +131,7 @@ int main(int argc, char **argv)
 		while(DoExit == false)
 		{
 			MManager.Scan();
+			MManager.Purge();
 			ExitLock.Wait(&timeout);
 		}
 		lock.Unlock(); //Required to prevent hang in signals
