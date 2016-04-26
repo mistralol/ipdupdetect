@@ -12,8 +12,16 @@ AC_PROG_LIBTOOL
 
 AX_CXX_COMPILE_STDCXX_11(noext, optional)
 
-AX_COMPILER_FLAGS([WARN_CFLAGS],[WARN_LDFLAGS])
-AC_SUBST([AM_CXXFLAGS], $WARN_CXXFLAGS)
+m4_ifdef([AX_COMPILER_FLAGS],
+	[
+		AX_COMPILER_FLAGS([WARN_CFLAGS],[WARN_LDFLAGS])
+		AC_SUBST([AM_CXXFLAGS], $WARN_CXXFLAGS)
+	]
+,
+	[
+		AC_SUBST([AM_CXXFLAGS], ['-Wall -Werror'])
+	]
+)
 
 dnl give error and exit if we don't have pkgconfig
 AC_CHECK_PROG(HAVE_PKGCONFIG, pkg-config, [ ], [

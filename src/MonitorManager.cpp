@@ -25,7 +25,11 @@ void MonitorManager::Scan()
 
 	for(auto it : iflst)
 	{
-		if (Exists(it) == false)
+		if (it.find(":") != std::string::npos)
+		{
+			//Ignore aliased interfaces
+		}
+		else if (Exists(it) == false)
 		{
 			LogDebug("Adding Interface '%s'", it.c_str());
 			Add(it);
