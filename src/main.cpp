@@ -1,6 +1,8 @@
 
 #include <main.h>
 
+#include "MonitorManagerFunctions.i"
+
 static Mutex ExitLock;
 static bool DoExit = false;
 
@@ -68,9 +70,72 @@ class SigHandler : public ISignalHandler
 		MonitorManager *m_manager;
 };
 
+class Service : public IServerHandler
+{
+	private:
+		MonitorManager *Manager;
+
+	public:
+		Service(MonitorManager *MM)
+		{
+			Manager = MM;
+		}
+	
+		~Service()
+		{
+	
+		}
+	
+		void OnPreNewConnection()
+		{
+			LogDebug("Service::OnPreNewConnection");
+		}
+	
+		void OnPostNewConnection(IServerConnection *Connection)
+		{
+			LogDebug("Service::OnPostNewConnection");
+		}
+	
+		void OnDisconnect(IServerConnection *Connection)
+		{
+			LogDebug("Service::OnDisconnect");
+		}
+	
+		int OnRequest(IServerConnection *Connection, Json::Value &request, Json::Value &response)
+		{
+			if (request.isMember("action") == false || request["action"].isString() == false)
+			{
+				LogError("Service::OnRequest No 'action'");
+				return -EINVAL;
+
+			}
+		
+			std::string Command = request["action"].asString();
+			const TType *tmp = MonitorManagerFunctions::Lookup(Command.c_str(), Command.length());
+			if (tmp == NULL)
+			{
+				LogError("Service::OnRequest Unknown Request: \"%s\"", Command.c_str());
+				return -ENOSYS;
+			}
+		
+			PerfCounter PC(Command.c_str());
+			return tmp->func(Manager, Connection, request, response);
+		}
+	
+		int OnCommand(IServerConnection *Connection, Json::Value &request)
+		{
+			LogDebug("OnCommand");
+		}
+	
+		void OnBadLine(IServerConnection *Connection, const std::string *line)
+		{
+			LogError("OnBadLine: %s\n", line->c_str());
+		}
+};
 
 int main(int argc, char **argv)
 {
+	std::string LocSocket = "/tmp/ipdupdetect";
 	std::unique_ptr<PIDFile> PidFile;
 	std::string LocPidFile = "";
 	const char *opts = "h";
@@ -122,10 +187,17 @@ int main(int argc, char **argv)
 
 	do
 	{
+		ServerManager *SrvManager = NULL;
 		MonitorManager MManager;
+		Service *Srv = new Service(&MManager); //Bind instance of MonitorManager to the ServiceProxy
 		struct timespec timeout = {60, 0}; //Timeout to reprocess interface list
 		ScopedLock lock(&ExitLock);
-		SHandler.SetMonitorManager(&MManager);
+		SHandler.SetMonitorManager(&MManager); //Bind MonitorManager to signal handler proxy
+
+		
+		ServerUnixPolled Unix(LocSocket); //Create a suitable socket
+		SrvManager = new ServerManager(Srv); //Create a new server instance
+		SrvManager->ServerAdd(&Unix); //Bind our Service proxy to the socket instance
 
 		Signals.UnBlock();
 		while(DoExit == false)
@@ -135,6 +207,10 @@ int main(int argc, char **argv)
 			ExitLock.Wait(&timeout);
 		}
 		lock.Unlock(); //Required to prevent hang in signals
+		
+		SrvManager->ServerRemove(&Unix);
+		delete Srv;
+		delete SrvManager;
 		
 		Signals.Block();
 		SHandler.SetMonitorManager(NULL);

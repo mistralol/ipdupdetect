@@ -12,3 +12,4 @@ configure
 libtool
 .deps
 src/ipdupdetect
+src/MonitorManagerFunctions.i

@@ -62,6 +62,12 @@ AC_CHECK_LIB([pthread], [pthread_mutex_init], [], [
 	AC_MSG_ERROR([You need to have pthread installed])
 ])
 
+AC_CHECK_PROG(GPERF_CHECK,gperf,yes)
+if test x"$GPERF_CHECK" != x"yes" ; then
+	AC_MSG_ERROR([Please install gperf before installing.])
+fi
+
+
 AC_OUTPUT(Makefile src/Makefile)
 
 

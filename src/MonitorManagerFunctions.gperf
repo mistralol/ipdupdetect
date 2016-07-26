@@ -1,0 +1,19 @@
+%{
+
+struct TType {
+    const char *name;
+    int (*func) (MonitorManager *MM, IServerConnection *Connection, Json::Value &request, Json::Value &response);
+};
+
+%}
+
+%language=C++
+%define lookup-function-name Lookup
+%define class-name MonitorManagerFunctions
+struct TType
+%%
+#####
+#####
+Version
+Ping
+#####
