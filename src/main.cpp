@@ -11,6 +11,7 @@ void print_help(FILE *fp, char *app)
 	fprintf(fp, "Usage: %s <options>\n", app);
 	fprintf(fp, "\n");
 	fprintf(fp, " -h --help             Print this help\n");
+	fprintf(fp, " -d --debug            Switch on debug level logging\n");
 	fprintf(fp, "\n");
 }
 
@@ -138,13 +139,15 @@ int main(int argc, char **argv)
 	std::string LocSocket = "/tmp/ipdupdetect";
 	std::unique_ptr<PIDFile> PidFile;
 	std::string LocPidFile = "";
-	const char *opts = "h";
+	const char *opts = "hdp:";
 	int longindex = 0;
 	int c = 0;
+	int debug = 0;
 	struct option loptions[]
 	{
 		{"help", 0, 0, 'h'},
 		{"pid", 1, 0, 'p'},
+		{"debug", 0, 0, 'd'},
 		{0, 0, 0, 0}
 	};
 	
@@ -152,6 +155,9 @@ int main(int argc, char **argv)
 	{
 		switch(c)
 		{
+			case 'd':
+				debug = 1;
+				break;
 			case 'h':
 				print_help(stdout, argv[0]);
 				exit(EXIT_SUCCESS);
@@ -168,6 +174,15 @@ int main(int argc, char **argv)
 	if (isatty(fileno(stdout)) == 1)
 	{
 		LogManager::Add(new LogStdoutColor());
+	}
+
+	if (debug)
+	{
+		LogManager::SetLevel(LOGGER_DEBUG);
+	}
+	else
+	{
+		LogManager::SetLevel(LOGGER_INFO);
 	}
 	
 	if (LocPidFile != "")
