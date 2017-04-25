@@ -174,6 +174,8 @@ int main(int argc, char **argv)
 	if (isatty(fileno(stdout)) == 1)
 	{
 		LogManager::Add(new LogStdoutColor());
+	} else {
+		LogManager::Add(new LogStdout());
 	}
 
 	if (debug)
