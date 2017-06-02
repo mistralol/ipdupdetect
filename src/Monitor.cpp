@@ -61,6 +61,7 @@ void Monitor::Purge()
 
 void Monitor::Run()
 {
+restart:
 	pcap_t *pcap;
 	
 	char err[512];
@@ -98,6 +99,12 @@ void Monitor::Run()
 	
 		if (ret == 1)
 		{
+			if ((fds.revents & POLLERR)) {
+				LogCritical("Poll Error ... Restarting");
+				pcap_close(pcap);
+				goto restart;
+			}
+
 			if ((fds.revents & POLLIN))
 			{
 				struct pcap_pkthdr hdr;
