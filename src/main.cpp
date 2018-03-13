@@ -173,9 +173,11 @@ int main(int argc, char **argv)
 	//Add Logging
 	if (isatty(fileno(stdout)) == 1)
 	{
-		LogManager::Add(new LogStdoutColor());
+		std::shared_ptr<ILogger> tmp = std::make_shared<LogStdoutColor>();
+		LogManager::Add(tmp);
 	} else {
-		LogManager::Add(new LogStdout());
+		std::shared_ptr<ILogger> tmp = std::make_shared<LogStdout>();
+		LogManager::Add(tmp);
 	}
 
 	if (debug)
