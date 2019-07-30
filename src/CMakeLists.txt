@@ -27,3 +27,5 @@ target_link_libraries(ipdupdetect
     ${JSONCPP_LIBRARIES}
 )
 
+install(TARGETS ipdupdetect DESTINATION bin)
+
